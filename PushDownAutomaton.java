@@ -29,7 +29,8 @@ public class PushDownAutomaton
         Map<Character,NonTerminal> nonTerminalMap = new HashMap<>();
         ArrayList<NonTerminal> nonTerminalList = new ArrayList<NonTerminal>();
         ArrayList<Character> terminal = new ArrayList<Character>();
-
+        Node root = new Node("root");
+    
         Scanner in = new Scanner(System.in);
         System.out.println("Name of file(must be in the same folder): ");
         String txt = in.nextLine(); 
@@ -86,5 +87,6 @@ public class PushDownAutomaton
         }
 
     }
+
 
 }
