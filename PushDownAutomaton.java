@@ -24,9 +24,11 @@ public class PushDownAutomaton
     return lines; 
     }
 
-    public static void makeTree(Map<Character,NonTerminal> nonTerminalMap, String initial, String p){
+    public static List makeTree(Map<Character,NonTerminal> nonTerminalMap, String initial, String p){
         Queue<String> q = new LinkedList<>(); 
         boolean done = false;
+        Node root = new Node("root");
+        List<Node> tree = new ArrayList();
         char firstNonTerminal = 'A';
 
         q.add(initial);
@@ -36,12 +38,13 @@ public class PushDownAutomaton
 
             //get the first non-terminal symbol
             String symbol = q.remove();
+            root = new Node(symbol);
             
             for(int n = 0; n< symbol.length();n++){
                 if(nonTerminalMap.containsKey(symbol.charAt(n))){
                     System.out.println("found the first Non Terminal");
                     firstNonTerminal = symbol.charAt(n);
-
+                    
                     break;
                 }
             }
@@ -60,7 +63,9 @@ public class PushDownAutomaton
                     rule = symbol.replaceFirst(String.valueOf(firstNonTerminal),rule);
                 }
                 
-                
+                Node n = new Node(rule);
+                n.setFather(root);
+
                 System.out.println("original symbol: " + symbol);
                 System.out.println("rule: " + rule);
                 //Check if the prefix is still the same as the p line, and if there are non-terminal characters
@@ -68,6 +73,8 @@ public class PushDownAutomaton
                     System.out.println("j: " + j);
                     if(nonTerminalMap.containsKey(rule.charAt(j))){
                         q.add(rule);
+                        Node n1 = new Node(rule);
+                        n1.setFather();
                         break;
 
                     }
@@ -100,6 +107,9 @@ public class PushDownAutomaton
         else{
             System.out.println("Rejected");
         }
+
+        return tree;
+
     }
 
     public static void main(String[] args) {
@@ -107,7 +117,6 @@ public class PushDownAutomaton
         ArrayList<Character> terminal = new ArrayList<Character>();
         String initial = "";
 
-        Node root = new Node("root");
     
         Scanner in = new Scanner(System.in);
         System.out.println("Name of file(must be in the same folder): ");
@@ -165,9 +174,13 @@ public class PushDownAutomaton
 
         System.out.println("String: ");
         String p = in.nextLine(); 
-        makeTree(nonTerminalMap,initial,p);
+        
+        
+            List<Node> templist = makeTree(nonTerminalMap,initial,p);
+            for( Node t : templist){
+                System.out.println("Rule: " + t.getValue());
+            }
+
 
     }
-
-
 }

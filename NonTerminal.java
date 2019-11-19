@@ -2,6 +2,7 @@ import java.util.*;
 public class NonTerminal{
     List derivations;
     char name;
+
     public NonTerminal(char name){
         this.derivations = new ArrayList();
         this.name = name;
@@ -22,6 +23,8 @@ public class NonTerminal{
     public char getName(){
         return name;
     }
+
+   
 
 
 }
