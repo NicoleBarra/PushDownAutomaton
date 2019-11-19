@@ -107,6 +107,8 @@ public class PushDownAutomaton
         ArrayList<Character> terminal = new ArrayList<Character>();
         String initial = "";
 
+        Node root = new Node("root");
+    
         Scanner in = new Scanner(System.in);
         System.out.println("Name of file(must be in the same folder): ");
         String txt = in.nextLine(); 
@@ -166,5 +168,6 @@ public class PushDownAutomaton
         makeTree(nonTerminalMap,initial,p);
 
     }
+
 
 }
