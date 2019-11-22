@@ -24,12 +24,14 @@ public class PushDownAutomaton
     return lines; 
     }
 
-    public static List makeTree(Map<Character,NonTerminal> nonTerminalMap, String initial, String p){
-        Queue<String> q = new LinkedList<>(); 
+    public static List makeTree(Map<Character,NonTerminal> nonTerminalMap, Node initial, String p){
+        Queue<Node> q = new LinkedList<>(); 
         boolean done = false;
-        Node root = new Node("root");
+        Node root = new Node("root","");
         List<Node> tree = new ArrayList();
         char firstNonTerminal = 'A';
+        Node n = new Node("","");
+        String nRule = "";
 
         q.add(initial);
 
@@ -37,13 +39,14 @@ public class PushDownAutomaton
             System.out.println("hewoo owo");
 
             //get the first non-terminal symbol
-            String symbol = q.remove();
-            root = new Node(symbol);
             
-            for(int n = 0; n< symbol.length();n++){
-                if(nonTerminalMap.containsKey(symbol.charAt(n))){
+            root = q.remove();
+            String symbol = root.getValue();
+            
+            for(int m = 0; m< symbol.length();m++){
+                if(nonTerminalMap.containsKey(symbol.charAt(m))){
                     System.out.println("found the first Non Terminal");
-                    firstNonTerminal = symbol.charAt(n);
+                    firstNonTerminal = symbol.charAt(m);
                     
                     break;
                 }
@@ -56,30 +59,29 @@ public class PushDownAutomaton
                     break;
                 }
                 String rule = r.get(i);
+                
                 if(rule.equals("lmd")){
-                    rule = symbol.replaceFirst(String.valueOf(firstNonTerminal),"");
+                    nRule = symbol.replaceFirst(String.valueOf(firstNonTerminal),"");
                 }
                 else{
-                    rule = symbol.replaceFirst(String.valueOf(firstNonTerminal),rule);
+                    System.out.println("changing rule: " + rule);
+                    nRule = symbol.replaceFirst(String.valueOf(firstNonTerminal),rule);
+                    System.out.println("nRule: " + nRule);
                 }
                 
-                Node n = new Node(rule);
+                n = new Node(nRule,rule);
                 n.setFather(root);
 
-                System.out.println("original symbol: " + symbol);
-                System.out.println("rule: " + rule);
                 //Check if the prefix is still the same as the p line, and if there are non-terminal characters
-                for(int j = 0; j<rule.length();j++){
+                for(int j = 0; j<nRule.length();j++){
                     System.out.println("j: " + j);
-                    if(nonTerminalMap.containsKey(rule.charAt(j))){
-                        q.add(rule);
-                        Node n1 = new Node(rule);
-                        n1.setFather();
+                    if(nonTerminalMap.containsKey(nRule.charAt(j))){
+                        q.add(n);
                         break;
 
                     }
                     else{
-                        if(rule.charAt(j) == (p.charAt(j)) && rule.length()<=p.length()+1){
+                        if(nRule.charAt(j) == (p.charAt(j)) && nRule.length()<=p.length()+1){
                             continue;
                         }
                         else{
@@ -90,7 +92,7 @@ public class PushDownAutomaton
                     }
                     
                 }
-                if(rule.equals(p)){
+                if(nRule.equals(p)){
                     done = true;
                     System.out.println("done was found");
                 }
@@ -108,8 +110,49 @@ public class PushDownAutomaton
             System.out.println("Rejected");
         }
 
+        
+        while(n.getFather()!= null){
+            tree.add(0,n);
+            n = n.getFather();
+        }
+        tree.add(0,initial);
         return tree;
 
+    }
+
+    public static List makePushDownMoves(List<Node> tree, String s, Map<Character,NonTerminal> nonTerminalMap){
+        List moves = new ArrayList();
+        String stack = "Z0";
+
+        moves.add("<q0," + s + ","+ stack +">");
+        stack = tree.get(0).getValue() + stack;
+        moves.add("<q1," + s + "," + stack+">");
+
+        for(int i = 1; i<tree.size();i++){
+            while(nonTerminalMap.containsKey(stack.charAt(0))== false){
+                s = s.substring(1);
+                stack = stack.substring(1);
+                moves.add("<q1," + s + "," + stack+">");
+            }
+            stack = stack.substring(1);
+            stack = tree.get(i).getRule() + stack;
+            moves.add("<q1," + s + "," + stack+">");
+        }
+        System.out.println(s.charAt(0) == stack.charAt(0));
+        while(s.charAt(0) == stack.charAt(0)){
+            System.out.println("hi!");
+            s = s.substring(1);
+            stack = stack.substring(1);
+            if(s.equals("")){
+                s = "lmd";
+            }
+            moves.add("<q1," + s + "," + stack+">");
+        }
+        
+        moves.add("<q2," + s + "," + stack+">");
+
+
+        return moves;
     }
 
     public static void main(String[] args) {
@@ -174,12 +217,22 @@ public class PushDownAutomaton
 
         System.out.println("String: ");
         String p = in.nextLine(); 
+        Node initialNode = new Node(initial,"");
         
         
-            List<Node> templist = makeTree(nonTerminalMap,initial,p);
+            List<Node> templist = makeTree(nonTerminalMap,initialNode,p);
             for( Node t : templist){
                 System.out.println("Rule: " + t.getValue());
             }
+
+            System.out.println("\nmoves:");
+
+            List<String> moves = makePushDownMoves(templist,p, nonTerminalMap);
+            for( String m : moves){
+                System.out.println(m);
+            }
+
+            
 
 
     }
