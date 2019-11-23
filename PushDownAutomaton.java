@@ -1,5 +1,4 @@
-// Java program to illustrate reading data from file 
-// using nio.File 
+
 import java.util.*; 
 import java.nio.charset.StandardCharsets; 
 import java.nio.file.*; 
@@ -8,6 +7,16 @@ import java.util.stream.Collectors;
 
 public class PushDownAutomaton
 { 
+
+    String filename;
+    String p;
+    public List<String> moves = new ArrayList<String>();
+
+    public PushDownAutomaton(String filename, String p){
+        this.filename = filename;
+        this.p = p;
+        moves =DoPDA(p, filename);
+    }
 
   //function that reads the file line by line and turns it into a List
   public static List<String> readFileInList(String fileName) { 
@@ -36,7 +45,6 @@ public class PushDownAutomaton
         q.add(initial);
 
         while(q.size()>0 && done == false){
-            System.out.println("hewoo owo");
 
             //get the first non-terminal symbol
             
@@ -100,7 +108,6 @@ public class PushDownAutomaton
                 }
                 if(nRule.equals(p)){
                     done = true;
-                    System.out.println("done was found");
                 }
 
 
@@ -161,19 +168,14 @@ public class PushDownAutomaton
         return moves;
     }
 
-    public static void main(String[] args) {
+    public static List<String> DoPDA(String p, String filename){
+
         Map<Character,NonTerminal> nonTerminalMap = new HashMap<>();
         ArrayList<Character> terminal = new ArrayList<Character>();
         String initial = "";
-
-    
-        Scanner in = new Scanner(System.in);
-        System.out.println("Name of file(must be in the same folder): ");
-        String txt = in.nextLine(); 
-        //try catch
-        List<String> l = readFileInList(txt); 
-
+        List<String> l = readFileInList(filename); 
         int i = 0;
+
         for(String s: l){
 
             i = i+1;
@@ -181,7 +183,6 @@ public class PushDownAutomaton
             System.out.println(s);
             
 
-        
 
             if( i == 1){
                 String[] data = s.split(",");
@@ -221,24 +222,25 @@ public class PushDownAutomaton
             }
         }
 
+        String word = p; 
         System.out.println("String: ");
-        String p = in.nextLine(); 
+       
         Node initialNode = new Node(initial,"");
         
         
-            List<Node> templist = makeTree(nonTerminalMap,initialNode,p);
-            for( Node t : templist){
-                System.out.println("Rule: " + t.getValue());
-            }
+        List<Node> templist = makeTree(nonTerminalMap,initialNode,word);
+        for( Node t : templist){
+            System.out.println("Rule: " + t.getValue());
+        }
 
-            System.out.println("\nmoves:");
+        System.out.println("\nmoves:");
 
-            List<String> moves = makePushDownMoves(templist,p, nonTerminalMap);
-            for( String m : moves){
-                System.out.println(m);
-            }
+        List<String> moves = makePushDownMoves(templist,word, nonTerminalMap);
+        for( String m : moves){
+            System.out.println(m);
+        }
 
-            
+        return moves;
 
 
     }
