@@ -24,11 +24,11 @@ public class PushDownAutomaton
     return lines; 
     }
 
-    public static List makeTree(Map<Character,NonTerminal> nonTerminalMap, Node initial, String p){
+    public static List<Node> makeTree(Map<Character,NonTerminal> nonTerminalMap, Node initial, String p){
         Queue<Node> q = new LinkedList<>(); 
         boolean done = false;
         Node root = new Node("root","");
-        List<Node> tree = new ArrayList();
+        List<Node> tree = new ArrayList<Node>();
         char firstNonTerminal = 'A';
         Node n = new Node("","");
         String nRule = "";
@@ -42,6 +42,7 @@ public class PushDownAutomaton
             
             root = q.remove();
             String symbol = root.getValue();
+
             
             for(int m = 0; m< symbol.length();m++){
                 if(nonTerminalMap.containsKey(symbol.charAt(m))){
@@ -72,8 +73,13 @@ public class PushDownAutomaton
                 n = new Node(nRule,rule);
                 n.setFather(root);
 
+                //count terminals
+                if(countTerminals(nRule, nonTerminalMap,p)){
+                    break;
+                }
+
                 //Check if the prefix is still the same as the p line, and if there are non-terminal characters
-                for(int j = 0; j<nRule.length();j++){
+                for(int j = 0; j<nRule.length() && j<p.length();j++){
                     System.out.println("j: " + j);
                     if(nonTerminalMap.containsKey(nRule.charAt(j))){
                         q.add(n);
@@ -120,8 +126,8 @@ public class PushDownAutomaton
 
     }
 
-    public static List makePushDownMoves(List<Node> tree, String s, Map<Character,NonTerminal> nonTerminalMap){
-        List moves = new ArrayList();
+    public static List<String> makePushDownMoves(List<Node> tree, String s, Map<Character,NonTerminal> nonTerminalMap){
+        List<String> moves = new ArrayList<String>();
         String stack = "Z0";
 
         moves.add("<q0," + s + ","+ stack +">");
@@ -235,5 +241,27 @@ public class PushDownAutomaton
             
 
 
+    }
+
+    public static boolean countTerminals(String s,Map<Character,NonTerminal> nonTerminalMap, String p){
+        int terminals = 0;
+
+        for(int i=0; i<s.length(); i++){
+            if(nonTerminalMap.containsKey(s.charAt(i))==false){
+                terminals++;
+                System.out.println("terminals no: " + terminals);
+                System.out.println("length of string" + p.length());
+                if(terminals>p.length()){
+                    return true;
+                }
+                else if(terminals == p.length()){
+                    if(s.equals(p) == false){
+                        return true;
+                    }
+                }
+                
+            }
+        }
+        return false;
     }
 }
